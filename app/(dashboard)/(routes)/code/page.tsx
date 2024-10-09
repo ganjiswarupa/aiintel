@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"; // Import zod resolver fo
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"; // Form components
 import { Input } from "@/components/ui/input"; // Input component
 import { Button } from "@/components/ui/button"; // Button component
-import axios, { AxiosError } from "axios"; // Import Axios and its error type
+import axios from "axios"; // Import Axios and its error type
 import { useState } from "react"; // Import useState for state management
 import { Heading } from "@/components/heading"; // Heading component
 import { formSchema } from "./constants"; // Import the form validation schema
