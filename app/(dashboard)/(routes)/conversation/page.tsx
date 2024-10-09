@@ -1,97 +1,101 @@
 "use client";
+import * as z from "zod"; // Zod library for schema validation
+import { MessageSquare } from "lucide-react"; // Icon component
+import { useForm, SubmitHandler } from "react-hook-form"; // Form handling hook
+import { zodResolver } from "@hookform/resolvers/zod"; // Zod resolver for react-hook-form
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"; // Custom Form components
+import { Input } from "@/components/ui/input"; // Custom Input component
+import { Button } from "@/components/ui/button"; // Custom Button component
+import axios from "axios"; // HTTP client
+import { useRouter } from "next/navigation"; // Navigation hook for Next.js
+import { useState } from "react"; // State management
+import { Heading } from "@/components/heading"; // Custom Heading component
+import { formSchema } from "./constants"; // Form validation schema
+import { Empty } from "@/components/empty"; // Empty state component
+import { Loader } from "@/components/loader"; // Loader component
+import { cn } from "@/lib/utils"; // Utility function for classnames
+import { UserAvatar } from "@/components/user-avatar"; // Custom User Avatar component
+import { BotAvatar } from "@/components/bot-avatar"; // Custom Bot Avatar component
+import { v4 as uuidv4 } from 'uuid'; // UUID for unique IDs
 
-import * as z from "zod";
-import { MessageSquare } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Heading } from "@/components/heading";
-import { formSchema } from "./constants";
-import { Empty } from "@/components/empty";
-import { Loader } from "@/components/loader";
-import { cn } from "@/lib/utils";
-import { UserAvatar } from "@/components/user-avatar";
-import { BotAvatar } from "@/components/bot-avatar";
-import { v4 as uuidv4 } from 'uuid'; // Import UUID library
-
+// Define the ConversationPage component
 const ConversationPage = () => {
-  const router = useRouter();
-  const [messages, setMessages] = useState<{ id: string; role: string; content: string }[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loadingMessageIndex, setLoadingMessageIndex] = useState<number | null>(null);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { prompt: "" },
+  const router = useRouter(); 
+  const [messages, setMessages] = useState<{ id: string; role: string; content: string }[]>([]); // Track messages
+  const [error, setError] = useState<string | null>(null); // Error state
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState<number | null>(null); // Loading index
+  
+  // Use react-hook-form with Zod validation
+  const form = useForm<z.infer<typeof formSchema>>({ 
+    resolver: zodResolver(formSchema), 
+    defaultValues: { prompt: "" } 
   });
+  
+  const isLoading = form.formState.isSubmitting; // Form loading state
 
-  const isLoading = form.formState.isSubmitting;
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  // Define the onSubmit function to handle form submissions
+  const onSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (values) => {
     try {
-      setError(null);
-      const userMessage = {
-        id: uuidv4(), // Use UUID for unique ID
-        role: "user",
-        content: values.prompt,
+      setError(null); // Reset error state
+
+      // Create user message
+      const userMessage = { 
+        id: uuidv4(), 
+        role: "user", 
+        content: values.prompt 
       };
 
-      setMessages((current) => [...current, userMessage]);
-      setLoadingMessageIndex(messages.length); // Set loading message index
+      setMessages((current) => [...current, userMessage]); // Add user message to messages
+      setLoadingMessageIndex(messages.length); // Set loading index
 
-      const response = await axios.post("/api/conversation", {
-        messages: [...messages, userMessage],
+      // Call API to get bot response
+      const response = await axios.post("/api/conversation", { 
+        messages: [...messages, userMessage] 
       });
 
-      // Assuming response.data contains a string or an object
-      const botMessageContent = response.data?.content || "No response from bot."; // Adjust this according to your API response structure
-
-      const botMessage = {
-        id: uuidv4(), // Use UUID for unique ID
-        role: "assistant",
-        content: botMessageContent, // Use the right property from your API response
+      const botMessageContent = response.data?.content || "No response from bot."; // Get bot message content
+      const botMessage = { 
+        id: uuidv4(), 
+        role: "assistant", 
+        content: botMessageContent 
       };
 
-      setMessages((current) => [...current, botMessage]);
-      form.reset();
+      setMessages((current) => [...current, botMessage]); // Add bot message to messages
+      form.reset(); // Reset form values
+
     } catch (error) {
       console.error("Error submitting message:", error);
-      setError("Failed to send message. Please try again."); // General error message
+      setError("Failed to send message. Please try again."); // Set error message
     } finally {
-      setLoadingMessageIndex(null);
+      setLoadingMessageIndex(null); // Reset loading index
     }
   };
 
   return (
     <div>
-      <Heading
-        title="Conversation"
-        description="Our most advanced conversation model."
-        icon={MessageSquare}
-        iconColor="text-violet-500"
-        bgColor="bg-violet-500/10"
+      <Heading 
+        title="Conversation" 
+        description="Our most advanced conversation model." 
+        icon={MessageSquare} 
+        iconColor="text-violet-500" 
+        bgColor="bg-violet-500/10" 
       />
       <div className="px-4 lg:px-8">
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
+          <form 
+            onSubmit={form.handleSubmit(onSubmit)} 
             className="rounded-lg border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-12 gap-2"
           >
-            <FormField
-              name="prompt"
+            <FormField 
+              name="prompt" 
               render={({ field }) => (
                 <FormItem className="col-span-12 lg:col-span-10">
                   <FormControl className="m-0 p-0">
-                    <Input
-                      className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
-                      disabled={isLoading}
-                      placeholder="How do I calculate the radius of a circle?"
-                      {...field}
+                    <Input 
+                      className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent" 
+                      disabled={isLoading} 
+                      placeholder="How do I calculate the radius of a circle?" 
+                      {...field} 
                     />
                   </FormControl>
                 </FormItem>
@@ -119,17 +123,15 @@ const ConversationPage = () => {
           )}
           <div className="flex flex-col-reverse gap-y-4">
             {messages.map((message, index) => (
-              <div
-                key={message.id}
+              <div 
+                key={message.id} 
                 className={cn(
-                  "p-8 w-full flex items-start gap-x-8 rounded-lg",
+                  "p-8 w-full flex items-start gap-x-8 rounded-lg", 
                   message.role === "user" ? "bg-white border border-black/10" : "bg-muted"
                 )}
               >
                 {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
-                <p className="text-sm">
-                  {message.content}
-                </p>
+                <p className="text-sm">{message.content}</p>
                 {loadingMessageIndex === index && <Loader />}
               </div>
             ))}
