@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 
 import { Card } from "@/components/ui/card"; // Import the Card component from the UI library
 import { cn } from "@/lib/utils"; // Utility function for managing class names
@@ -67,18 +67,19 @@ const DashboardIdPage = () => {
                     >
                         <div className="flex items-center gap-x-4">
                             <div className={cn("p-2 w-fit rounded-md", tool.bgColor)}>
-                                <tool.icon className={cn("w-8 h-8", tool.color)}/> // Render the respective icon
+                                <tool.icon className={cn("w-8 h-8", tool.color)} />
+                                {/* Render the respective icon */}
                             </div>
                             <div className="font-semibold">
-                                {tool.label} // Display the tool's label
+                                {tool.label} {/* Display the tool's label */}
                             </div>
                         </div>
-                        <ArrowRight className="w-5 h-5"/> // Arrow icon signifying navigation
+                        <ArrowRight className="w-5 h-5" /> {/* Arrow icon signifying navigation */}
                     </Card>
                 ))}
             </div>
         </div>
     );
-}
+};
 
 export default DashboardIdPage; // Export the DashboardIdPage component for use in other parts of the application

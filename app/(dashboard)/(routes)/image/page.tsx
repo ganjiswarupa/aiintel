@@ -14,7 +14,6 @@ import { Heading } from "@/components/heading";
 import { formSchema, amountOptions, resolutionOptions } from "./constants"; // Importing options
 import { Empty } from "@/components/empty";
 import { Loader } from "@/components/loader";
-import { v4 as uuidv4 } from 'uuid';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardFooter } from "@/components/ui/card";
 import Image from "next/image";
@@ -45,8 +44,8 @@ const ImagePage = () => {
 
       setImages(urls);
       form.reset();
-    } catch (error: any) { // Capture error type
-      console.error("Error submitting message:", error);
+    } catch (err: unknown) { // Clarify the error type
+      console.error("Error submitting message:", err);
       setError("Failed to generate image. Please try again."); // General error message
     } finally {
       setLoading(false); // Reset loading state
@@ -76,7 +75,7 @@ const ImagePage = () => {
                     <Input
                       className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
                       disabled={loading}
-                      placeholder="A picture of the product or service wodarful images"
+                      placeholder="A picture of a wonderful image"
                       {...field}
                     />
                   </FormControl>
@@ -161,20 +160,17 @@ const ImagePage = () => {
             <Empty label="No images generated." />
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-8">
-            {images.map((src: string) => ( // Explicitly define the type for src
+            {images.map((src: string) => ( 
               <Card 
                 key={src}
                 className="rounded-lg overflow-hidden"
               >
                 <div className="relative aspect-square">
                   <Image 
-                    alt="Image"
+                    alt="Generated Image"
                     fill
                     src={src}
-                    className="object-cover" // Ensures the image covers the area correctly
-                    onError={(e) => {
-                      e.currentTarget.src = "/path/to/placeholder/image.png"; // Fallback image
-                    }}
+                    className="object-cover" 
                   />
                 </div>
                 <CardFooter className="p-2">

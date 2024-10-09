@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"; // Import zod resolver fo
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"; // Form components
 import { Input } from "@/components/ui/input"; // Input component
 import { Button } from "@/components/ui/button"; // Button component
-import axios from "axios"; // Import Axios and its error type
+import axios from "axios"; // Import Axios
 import { useState } from "react"; // Import useState for state management
 import { Heading } from "@/components/heading"; // Heading component
 import { formSchema } from "./constants"; // Import the form validation schema
@@ -135,13 +135,13 @@ const CodePage = () => {
                             >
                                 {message.role === "user" ? <UserAvatar /> : <BotAvatar />} {/* Show avatar based on message role */}
                                 <ReactMarkdown components={{
-                                    pre: ({ node, ...props }) => (
+                                    pre: (props) => (
                                         <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg">
-                                            <pre {...props}/>
+                                            <pre {...props} />
                                         </div>
                                     ),
-                                    code: ({ node, ...props }) => (
-                                        <code className="bg-black/10 rounded-lg p-1" {...props}/>
+                                    code: (props) => (
+                                        <code className="bg-black/10 rounded-lg p-1" {...props} />
                                     )
                                 }} className="text-sm overflow-hidden leading-7">
                                     {message.content || ""}
